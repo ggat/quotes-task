@@ -1,0 +1,20 @@
+.quote {
+    height: 30px;
+    display: flex;
+    align-items: baseline;
+}
+
+.quote .quote-actions {
+    margin-left: 12px;
+}
+
+.quote .quote-actions button {
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.quote .quote-state {
+    color: orange;
+    margin-left: 8px;
+    font-style: italic;
+}

@@ -1,0 +1,15 @@
+.quote-inputs {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+.quote-inputs input {
+    margin-bottom: 12px;
+}
+
+.quote-form-actions {
+    width: 300px;
+    display: flex;
+    justify-content: space-between;
+}

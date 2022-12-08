@@ -16,14 +16,15 @@ type FormData = {
 export type Props = {
     onSubmit: (data: FormData) => void;
     editQuote?: Quote;
-    onCancelEditQuote: (quote: Quote) => void;
+    onCancelEditQuote: () => void;
 };
 
-function QuoteForm({ onSubmit, editQuote }: Props) {
+function QuoteForm({ editQuote, onCancelEditQuote, onSubmit }: Props) {
     const [content, setContent] = useState("");
     const [author, setAuthor] = useState("");
 
     useEffect(() => {
+        console.log("editQuote changed", editQuote);
         if (editQuote) {
             setContent(editQuote.content);
             setAuthor(editQuote.author.name);
@@ -45,7 +46,7 @@ function QuoteForm({ onSubmit, editQuote }: Props) {
             onSubmit({
                 content,
                 author,
-                id: editQuote?.id
+                id: editQuote?.id,
             });
         },
         [onSubmit, content, author, editQuote]
@@ -53,23 +54,25 @@ function QuoteForm({ onSubmit, editQuote }: Props) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <label>
-                Enter the quote:
+            <h3>Add a new quote</h3>
+            <div className="quote-inputs">
                 <input
                     type="text"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
+                    placeholder="content"
                 />
-            </label>
-            <label>
-                Enter the author of the quote:
                 <input
                     type="text"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
+                    placeholder="author"
                 />
-            </label>
-            <input type="submit" />
+            </div>
+            <div className="quote-form-actions">
+                <button type="submit">Submit</button>
+                {editQuote && <button onClick={onCancelEditQuote}>Cancel Editing</button>}
+            </div>
         </form>
     );
 }

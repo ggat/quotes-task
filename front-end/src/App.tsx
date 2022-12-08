@@ -8,31 +8,24 @@ function App() {
     const [quotes, setQuotes] = useState<Quote[]>([]);
     const [editQuote, setEditQuote] = useState<Quote>();
     const [isFetching, setIsFetching] = useState(false);
+    const [error, setError] = useState();
 
     const fetchList = useCallback(() => {
         setIsFetching(true);
-        setTimeout(() => {
-            setIsFetching(false);
-            setQuotes([
-                {
-                    id: 1,
-                    content: "Imagination is more important than knowledge.",
-                    author: {
-                        id: 1,
-                        name: "Albert Einstein",
-                    },
-                },
-                {
-                    id: 2,
-                    content:
-                        "Insanity: doing the same thing over and over again and expecting different results.",
-                    author: {
-                        id: 1,
-                        name: "Albert Einstein",
-                    },
-                },
-            ]);
-        }, 1500);
+        fetch("/quotes")
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    throw new Error("could not fetch quote list");
+                }
+            })
+            .then((quotes) => {
+                setQuotes(quotes);
+                setError(undefined);
+            })
+            .catch((e) => setError(e.message))
+            .finally(() => setIsFetching(false));
     }, []);
 
     useEffect(() => {
@@ -42,18 +35,64 @@ function App() {
     const handleQuoteFormSubmit = useCallback<QuoteFormProps["onSubmit"]>(
         ({ content, author, id }) => {
             if (id !== undefined) {
-                console.log(`Updating quote with id: ${id}`);
+                fetch(`/quotes/${id}`, {
+                    method: "PUT",
+                    body: JSON.stringify({ content, author, id }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((res) => {
+                        if (res.ok) {
+                            fetchList();
+                        } else {
+                            return res
+                                .json()
+                                .catch((e) => {
+                                    throw new Error("Unknown error.");
+                                })
+                                .then((body) => {
+                                    throw new Error(body.message);
+                                });
+                        }
+                        setEditQuote(undefined);
+                    })
+                    .catch((e) => {
+                        setError(e.message);
+                    });
             } else {
-                console.log(`Creating a new quote`, { content, author });
+                fetch("/quotes", {
+                    method: "POST",
+                    body: JSON.stringify({ content, author }),
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((res) => {
+                        if (res.ok) {
+                            fetchList();
+                        } else {
+                            return res
+                                .json()
+                                .catch((e) => {
+                                    throw new Error("Unknown error.");
+                                })
+                                .then((body) => {
+                                    throw new Error(body.message);
+                                });
+                        }
+                    })
+                    .catch((e) => {
+                        setError(e.message);
+                    });
             }
-            fetchList();
         },
         [fetchList]
     );
 
     const handleCancelEditQuote = useCallback<
         QuoteFormProps["onCancelEditQuote"]
-    >((quote) => {
+    >(() => {
         setEditQuote(undefined);
     }, []);
 
@@ -66,9 +105,26 @@ function App() {
             if (quote.id === editQuote?.id) {
                 setEditQuote(undefined);
             }
-            // submit the form to the server
-            console.log(`Deleting quote with id: ${quote.id}`);
-            fetchList();
+            fetch(`/quotes/${quote.id}`, {
+                method: "DELETE",
+            })
+                .then((res) => {
+                    if (res.ok) {
+                        fetchList();
+                    } else {
+                        return res
+                            .json()
+                            .catch((e) => {
+                                throw new Error("Unknown error.");
+                            })
+                            .then((body) => {
+                                throw new Error(body.message);
+                            });
+                    }
+                })
+                .catch((e) => {
+                    setError(e.message);
+                });
         },
         [editQuote, fetchList]
     );
@@ -76,6 +132,7 @@ function App() {
     return (
         <div className="App">
             <div className="status-bar">
+                {error && <div className="error-container">{error}</div>}
                 {isFetching && <div>Loading quotes...</div>}
             </div>
             <div className="form-container">
@@ -84,6 +141,7 @@ function App() {
                     editQuote={editQuote}
                     onCancelEditQuote={handleCancelEditQuote}
                 />
+                <hr />
                 <QuoteList
                     quotes={quotes}
                     onEdit={handleEditQuote}
