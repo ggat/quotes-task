@@ -9,6 +9,7 @@ dotenv.config();
 const app = express();
 const port = process.env.API_PORT;
 
+
 app.get("/", async (req, res) => {
     const quotes = await prisma.quote.findMany();
 
