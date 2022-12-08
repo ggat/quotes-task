@@ -7,7 +7,14 @@ services:
             - POSTGRES_PASSWORD=postgres
         ports:
             - "5432:5432"
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready']
+            interval: 10s
+            timeout: 5s
+            retries: 5
     express:
+        environment:
+            - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/postgres?schema=public
         build: "./server"
         ports:
             - "8000:8000"
@@ -21,6 +28,9 @@ services:
             - type: bind
               source: ./server/node_modules/.prisma
               target: /app/node_modules/.prisma
+        depends_on:
+            postgres:
+                condition: service_healthy
     frontend:
         build: "./front-end"
         ports:

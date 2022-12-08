@@ -58,7 +58,7 @@ app.get("/", function (req, res) { return __awaiter(void 0, void 0, void 0, func
         }
     });
 }); });
-app.listen(port, function () {
+app.listen(port, '0.0.0.0', function () {
     console.log("[server]: Server is running at https://localhost:".concat(port));
 });
 //# sourceMappingURL=index.js.map
