@@ -1,42 +1,68 @@
-import React, { FormEventHandler, useCallback, useState } from "react";
+import React, {
+    FormEventHandler,
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
+import { Quote } from "../api-types";
 import "./QuoteForm.css";
 
 type FormData = {
-    quote: string;
+    content: string;
     author: string;
+    id?: number;
 };
 
 export type Props = {
     onSubmit: (data: FormData) => void;
+    editQuote?: Quote;
+    onCancelEditQuote: (quote: Quote) => void;
 };
 
-function QuoteForm({ onSubmit }: Props) {
-    const [quote, setQuote] = useState("");
+function QuoteForm({ onSubmit, editQuote }: Props) {
+    const [content, setContent] = useState("");
     const [author, setAuthor] = useState("");
+
+    useEffect(() => {
+        if (editQuote) {
+            setContent(editQuote.content);
+            setAuthor(editQuote.author.name);
+        } else {
+            setContent("");
+            setAuthor("");
+        }
+    }, [editQuote]);
 
     const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
         (event) => {
             event.preventDefault();
+
+            if (!editQuote) {
+                setContent("");
+                setAuthor("");
+            }
+
             onSubmit({
-                quote,
+                content,
                 author,
+                id: editQuote?.id
             });
         },
-        [onSubmit, quote, author]
+        [onSubmit, content, author, editQuote]
     );
 
     return (
         <form onSubmit={handleSubmit}>
             <label>
-                Enter your quote:
+                Enter the quote:
                 <input
                     type="text"
-                    value={quote}
-                    onChange={(e) => setQuote(e.target.value)}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
                 />
             </label>
             <label>
-                Enter your author:
+                Enter the author of the quote:
                 <input
                     type="text"
                     value={author}
