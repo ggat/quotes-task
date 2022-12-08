@@ -1,4 +1,4 @@
-// this can be from the API
+// this can be generated from the API
 export type Quote = {
     id: number;
     content: string;
