@@ -22,12 +22,6 @@ services:
             - type: bind
               source: ./server/src
               target: /app/src
-            - type: bind
-              source: ./server/node_modules/@prisma
-              target: /app/node_modules/@prisma
-            - type: bind
-              source: ./server/node_modules/.prisma
-              target: /app/node_modules/.prisma
         depends_on:
             postgres:
                 condition: service_healthy
